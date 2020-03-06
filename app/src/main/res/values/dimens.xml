@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="dimens_iv_item">90dp</dimen>
+    <dimen name="margin_tv_item">16dp</dimen>
+    <dimen name="margin_horizontal">8dp</dimen>
+    <dimen name="ts_tv_item">14sp</dimen>
+    <dimen name="height_progressbar">40dp</dimen>
+</resources>

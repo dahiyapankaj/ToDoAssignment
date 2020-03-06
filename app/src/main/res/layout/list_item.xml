@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="dataModel"
+            type="com.todoassignment.data.models.TodoResponse" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_horizontal"
+        android:elevation="@dimen/margin_tv_item"
+        app:cardCornerRadius="4dp"
+        app:cardElevation="@dimen/margin_tv_item">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_id"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/margin_tv_item"
+                android:gravity="center_vertical"
+                android:text="@{Integer.toString(dataModel.id)}"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/ts_tv_item"
+                tools:text="1) " />
+
+            <TextView
+                android:id="@+id/tv_task_completed"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/margin_tv_item"
+                android:gravity="center_vertical"
+                android:text="@{dataModel.completed?@string/completed:@string/not_completed}"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/ts_tv_item"
+                android:textStyle="bold"
+                tools:text="@string/app_name" />
+
+            <TextView
+                android:id="@+id/tv_item"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/margin_tv_item"
+                android:gravity="center_vertical"
+                android:text="@{dataModel.title}"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/ts_tv_item"
+                tools:text="Pankaj" />
+
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</layout>
