@@ -23,7 +23,7 @@ App will be for only portrait orientation supporting multiple screen sizes excep
 * LiveData
 * Junit for unit tests
 
-#Possible enhancements which could not be done due to shortage of time
+# Possible enhancements which could not be done due to shortage of time
 
 * Junit tests for coroutines
 * more user freindly Ui
