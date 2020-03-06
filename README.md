@@ -26,7 +26,7 @@ App will be for only portrait orientation supporting multiple screen sizes excep
 # Possible enhancements which could not be done due to shortage of time
 
 * Junit tests for coroutines
-* more user freindly Ui
+* Better UI
 * better implementation of ViewModelFactory, dagger and coroutine calls
 
 
