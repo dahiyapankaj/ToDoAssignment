@@ -1,5 +1,5 @@
 # ToDo App Assignment
-Demo App with display todo list using kotlin, coroutines, MVVM, Retrofit, LiveData and Data-Binding
+Demo App with display todo list using kotlin, coroutines,Koin, MVVM, Retrofit, LiveData and Data-Binding
 
 App will be for only portrait orientation supporting multiple screen sizes except tablets.
 
@@ -20,14 +20,14 @@ App will be for only portrait orientation supporting multiple screen sizes excep
 * Android JetPack - for androidx
 * Data Binding
 * corountines
+* KOIN for Dependency Injection
 * LiveData
 * Junit for unit tests
 
 # Possible enhancements which could not be done due to shortage of time
 
 * Junit tests for coroutines
-* Better UI
-* better implementation of ViewModelFactory, dagger and coroutine calls
+* Better UI  
 
 
 # Steps to run
