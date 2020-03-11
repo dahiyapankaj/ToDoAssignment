@@ -11,34 +11,50 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.todoassignment.App
+import com.todoassignment.data.network.Status
 import com.todoassignment.R
 import com.todoassignment.data.adapters.RvAdapter
 import com.todoassignment.data.interfaces.ActivityHandler
 import com.todoassignment.data.models.TodoResponse
-import com.todoassignment.data.network.NetworkState
+import com.todoassignment.data.network.Resource
 import com.todoassignment.viewmodels.ItemListingViewModel
-import com.todoassignment.viewmodels.ViewModelFactory
 import kotlinx.android.synthetic.main.fragment_listing.*
-import javax.inject.Inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.dsl.module
+
+val fragmentModule = module {
+    factory { ItemListingFragment() }
+}
 
 /**
  * A simple [Fragment] subclass.
  */
 class ItemListingFragment : Fragment(), RvAdapter.ListItemClickListener {
 
-    @Inject
-    lateinit var factory: ViewModelFactory
+    private val viewModel: ItemListingViewModel by viewModel()
 
     private lateinit var adapter: RvAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var activityHandler: ActivityHandler
 
-    private val viewModel: ItemListingViewModel by lazy {
-        App.appComponent.inject(this)
-        ViewModelProviders.of(this, factory).get(ItemListingViewModel::class.java)
+    private val observer = Observer<Resource<List<TodoResponse>>> {
+        when (it.status) {
+            Status.SUCCESS -> {
+                it.data?.let { it1 -> adapter.updateList(it1) }
+                activityHandler.hideProgressBar()
+                ll_error.visibility = GONE
+            }
+            Status.ERROR -> {
+                tv_error.text = it.message
+                ll_error.visibility = VISIBLE
+                activityHandler.hideProgressBar()
+            }
+            Status.LOADING -> {
+                activityHandler.showProgressBar()
+                ll_error.visibility = GONE
+            }
+        }
     }
 
     companion object {
@@ -78,7 +94,7 @@ class ItemListingFragment : Fragment(), RvAdapter.ListItemClickListener {
 
         // setting OnClickListener to retry button
         tv_retry.setOnClickListener {
-            viewModel.getItems()
+            //            viewModel.getItems()
         }
     }
 
@@ -86,31 +102,32 @@ class ItemListingFragment : Fragment(), RvAdapter.ListItemClickListener {
      * Function to set observers for updating UI
      */
     private fun setObservers() {
-        viewModel.networkStateLiveData.observe(this, Observer {
-            it?.let {
-                when (it.state) {
-                    NetworkState.FAILED -> {
-                        activityHandler.hideProgressBar()
-                        ll_error.visibility = VISIBLE
-                        tv_error.text = getString(it.messageId)
-                    }
-                    NetworkState.LOADING -> {
-                        activityHandler.showProgressBar()
-                        ll_error.visibility = GONE
-                    }
-                    NetworkState.DATA_LOADED -> {
-                        adapter.updateList(it.response)
-                        activityHandler.hideProgressBar()
-                        ll_error.visibility = GONE
-                    }
-                    NetworkState.NO_INTERNET -> {
-                        tv_error.text = getString(it.messageId)
-                        ll_error.visibility = VISIBLE
-                        activityHandler.hideProgressBar()
-                    }
-                }
-            }
-        })
+        viewModel.networkStateLiveData.observe(this, observer)
+        /* viewModel.networkStateLiveData.observe(this, Observer {
+             it?.let {
+                 when (it.state) {
+                     NetworkState.FAILED -> {
+                         activityHandler.hideProgressBar()
+                         ll_error.visibility = VISIBLE
+                         tv_error.text = getString(it.messageId)
+                     }
+                     NetworkState.LOADING -> {
+                         activityHandler.showProgressBar()
+                         ll_error.visibility = GONE
+                     }
+                     NetworkState.DATA_LOADED -> {
+                         adapter.updateList(it.response)
+                         activityHandler.hideProgressBar()
+                         ll_error.visibility = GONE
+                     }
+                     NetworkState.NO_INTERNET -> {
+                         tv_error.text = getString(it.messageId)
+                         ll_error.visibility = VISIBLE
+                         activityHandler.hideProgressBar()
+                     }
+                 }
+             }
+         })*/
     }
 
     override fun OnItemClicked(item: TodoResponse) {

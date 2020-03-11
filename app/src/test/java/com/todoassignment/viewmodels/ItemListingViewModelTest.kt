@@ -4,7 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.nhaarman.mockitokotlin2.mock
 import com.todoassignment.App
 import com.todoassignment.R
-import com.todoassignment.data.network.ApiService
+import com.todoassignment.data.network.NetworkApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.*
 import retrofit2.HttpException
@@ -15,7 +15,7 @@ class ItemListingViewModelTest {
 
     private lateinit var itemListingViewModel: ItemListingViewModel
     private var app = mock<App>()
-    private var apiService = mock<ApiService>()
+    private var apiService = mock<NetworkApi>()
 
 
     private var exIo = mock<IOException>()
