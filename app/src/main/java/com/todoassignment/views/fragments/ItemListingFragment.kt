@@ -12,12 +12,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.todoassignment.data.network.Status
 import com.todoassignment.R
 import com.todoassignment.data.adapters.RvAdapter
 import com.todoassignment.data.interfaces.ActivityHandler
 import com.todoassignment.data.models.TodoResponse
 import com.todoassignment.data.network.Resource
+import com.todoassignment.data.network.Status
 import com.todoassignment.viewmodels.ItemListingViewModel
 import kotlinx.android.synthetic.main.fragment_listing.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -78,7 +78,7 @@ class ItemListingFragment : Fragment(), RvAdapter.ListItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initUi()
-        setObservers()
+        viewModel.networkStateLiveData.observe(this, observer)
         viewModel.getItems()
     }
 
@@ -94,41 +94,10 @@ class ItemListingFragment : Fragment(), RvAdapter.ListItemClickListener {
 
         // setting OnClickListener to retry button
         tv_retry.setOnClickListener {
-            //            viewModel.getItems()
+            viewModel.getItems()
         }
     }
 
-    /**
-     * Function to set observers for updating UI
-     */
-    private fun setObservers() {
-        viewModel.networkStateLiveData.observe(this, observer)
-        /* viewModel.networkStateLiveData.observe(this, Observer {
-             it?.let {
-                 when (it.state) {
-                     NetworkState.FAILED -> {
-                         activityHandler.hideProgressBar()
-                         ll_error.visibility = VISIBLE
-                         tv_error.text = getString(it.messageId)
-                     }
-                     NetworkState.LOADING -> {
-                         activityHandler.showProgressBar()
-                         ll_error.visibility = GONE
-                     }
-                     NetworkState.DATA_LOADED -> {
-                         adapter.updateList(it.response)
-                         activityHandler.hideProgressBar()
-                         ll_error.visibility = GONE
-                     }
-                     NetworkState.NO_INTERNET -> {
-                         tv_error.text = getString(it.messageId)
-                         ll_error.visibility = VISIBLE
-                         activityHandler.hideProgressBar()
-                     }
-                 }
-             }
-         })*/
-    }
 
     override fun OnItemClicked(item: TodoResponse) {
         Toast.makeText(activity, "we clicked item ${item.title}", Toast.LENGTH_SHORT).show()
