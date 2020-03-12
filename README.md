@@ -24,12 +24,6 @@ App will be for only portrait orientation supporting multiple screen sizes excep
 * LiveData
 * Junit for unit tests
 
-# Possible enhancements which could not be done due to shortage of time
-
-* Junit tests for coroutines
-* Better UI  
-
-
 # Steps to run
 1. Download source code as zip or clone directly from the repo.
 2. Import the project in Android studio.
