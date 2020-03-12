@@ -1,69 +1,79 @@
 package com.todoassignment.viewmodels
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.Observer
 import com.nhaarman.mockitokotlin2.mock
-import com.todoassignment.App
-import com.todoassignment.R
-import com.todoassignment.data.network.NetworkApi
-import kotlinx.coroutines.test.runBlockingTest
+import com.nhaarman.mockitokotlin2.timeout
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
+import com.todoassignment.data.models.TodoResponse
+import com.todoassignment.data.network.ApiRepository
+import com.todoassignment.data.network.Resource
+import kotlinx.coroutines.*
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.*
-import retrofit2.HttpException
-import java.io.IOException
-import java.net.UnknownHostException
 
 class ItemListingViewModelTest {
 
     private lateinit var itemListingViewModel: ItemListingViewModel
-    private var app = mock<App>()
-    private var apiService = mock<NetworkApi>()
+    private lateinit var apiRepository: ApiRepository
+    private val observer: Observer<Resource<List<TodoResponse>>> = mock()
 
-
-    private var exIo = mock<IOException>()
-    private var exHttp = mock<HttpException>()
-    private var exUnkown = mock<UnknownHostException>()
+    private var successResource = Resource.success(arrayListOf(TodoResponse(1, 2, "title", false)))
+    private var errorResource = Resource.error("Timeout", null)
 
     // synchronous execution of tasks
     @get:Rule
     val executorRule = InstantTaskExecutorRule()
 
-
     @Before
     fun setUp() {
-        itemListingViewModel = ItemListingViewModel(app, apiService)
+        apiRepository = mock()
+        Dispatchers.setMain(mainThreadSurrogate)
+        runBlocking {
+            whenever(apiRepository.getItems()).thenReturn(successResource)
+            // TODO : uncomment below line to test the failure scenario of getItems() function
+//            whenever(apiRepository.getItems()).thenReturn(errorResource)
+        }
+        itemListingViewModel = ItemListingViewModel(apiRepository)
+
     }
+
+    @Rule
+    @JvmField
+    val instantExecutorRule = InstantTaskExecutorRule()
+
+    @ObsoleteCoroutinesApi
+    private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
     @After
     fun tearDown() {
-
+        Dispatchers.resetMain() // reset main dispatcher to the original Main dispatcher
+        mainThreadSurrogate.close()
     }
 
     @Test
-    fun getItemsTest() = runBlockingTest {
-        //        itemListingViewModel.getItems()
-//        MatcherAssert.assertThat(itemListingViewModel.networkStateLiveData.value?.response?.size, CoreMatchers.not(0))
+    fun getItemsSuccessTest() = runBlocking {
+        itemListingViewModel.networkStateLiveData.observeForever(observer)
+        itemListingViewModel.getItems()
+        delay(100)
+        verify(apiRepository).getItems()
+        verify(observer, timeout(100)).onChanged(Resource.loading(null))
+        verify(observer, timeout(100)).onChanged(successResource)
     }
 
+    // TODO : Remove @Ignore and Disconnect from internet to test this method
+    @Ignore
     @Test
-    fun getErrorMessageIdTest() {
-        Assert.assertEquals(
-            itemListingViewModel.getErrorMessageId(exUnkown),
-            R.string.check_network_settings
-        )
-        Assert.assertEquals(itemListingViewModel.getErrorMessageId(exIo), R.string.err_default)
-        Assert.assertEquals(itemListingViewModel.getErrorMessageId(exHttp), R.string.err_default)
+    fun getItemsFailTest() = runBlocking {
+        itemListingViewModel.networkStateLiveData.observeForever(observer)
+        itemListingViewModel.getItems()
+        delay(10)
+        verify(apiRepository).getItems()
+        verify(observer, timeout(50)).onChanged(Resource.loading(null))
+        verify(observer, timeout(50)).onChanged(errorResource)
     }
 
-    @Test
-    fun getHttpErrorMessageTest() {
-        Assert.assertEquals(itemListingViewModel.getHttpErrorMessage(402), R.string.err_default)
-        Assert.assertEquals(itemListingViewModel.getHttpErrorMessage(400), R.string.err_400)
-        Assert.assertEquals(itemListingViewModel.getHttpErrorMessage(401), R.string.err_401)
-        Assert.assertEquals(itemListingViewModel.getHttpErrorMessage(403), R.string.err_403)
-        Assert.assertEquals(itemListingViewModel.getHttpErrorMessage(404), R.string.err_404)
-        Assert.assertEquals(itemListingViewModel.getHttpErrorMessage(405), R.string.err_405)
-        Assert.assertEquals(itemListingViewModel.getHttpErrorMessage(408), R.string.err_408)
-        Assert.assertEquals(itemListingViewModel.getHttpErrorMessage(500), R.string.err_500)
-        Assert.assertEquals(itemListingViewModel.getHttpErrorMessage(502), R.string.err_502)
-        Assert.assertEquals(itemListingViewModel.getHttpErrorMessage(503), R.string.err_503)
-    }
+
 }
